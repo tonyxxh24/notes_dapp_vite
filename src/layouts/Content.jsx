@@ -1,13 +1,20 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useContext, useEffect } from 'react';
 import { Breadcrumb, Layout } from 'antd';
 import { Col, Row, Input, Button } from 'antd';
 
 import NoteCard from '../components/NoteCard';
+import NoteCreatorModal from '../components/NoteCreatorModal';
+import { NotesContext } from '../contexts/NotesContext';
 
 const { Content } = Layout;
 const AppContent = () => {
     const [encryptionKey, setEncryptionKey] = useState('');
     const inputRef = useRef(null);
+    const { notes, setNotes } = useContext(NotesContext);
+
+    useEffect(() => { 
+      
+    }, []);
 
     const handleKeySubmit = () => {
       if(inputRef.current)
@@ -40,20 +47,17 @@ const AppContent = () => {
               </div>
             </div>
           ) : (
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={12} md={8} lg={6}>
-                  <NoteCard/>
-              </Col>
-              <Col xs={24} sm={12} md={8} lg={6}>
-                  <NoteCard/>
-              </Col>
-              <Col xs={24} sm={12} md={8} lg={6}>
-                  <NoteCard/>
-              </Col>
-              <Col xs={24} sm={12} md={8} lg={6}>
-                  <NoteCard/>
-              </Col>
-            </Row>
+            <>
+              <Row gutter={[16, 16]}>
+                {notes.map((note, index) => (
+                  <Col xs={24} sm={12} md={8} lg={6} key={index}>
+                    <NoteCard noteData={note} />
+                  </Col>
+                ))}
+              </Row>
+
+              <NoteCreatorModal />
+            </>
           )}
         </Content>
     );

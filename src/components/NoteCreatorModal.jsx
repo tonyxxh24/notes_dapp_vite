@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Modal, Input, Button, Form, FloatButton } from 'antd';
 
 const NoteCreatorModal = () => {

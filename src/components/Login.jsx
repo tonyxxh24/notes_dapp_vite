@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Navigate } from  "react-router-dom";
+import { NotesContext } from "../contexts/NotesContext";
 
 const Web3Login = () => {
-  const [account, setAccount] = useState(null);
+  const { account, setAccount } = useContext(NotesContext);
   const [loading, setLoading] = useState(false);
 
   const connectWallet = async () => {
@@ -35,15 +36,12 @@ const Web3Login = () => {
             {loading ? "Connecting..." : "Connect Wallet"}
           </button>
         ) : (
-          // <div>
-          //   <p className="text-lg mb-4">Connected as:</p>
-          //   <p className="text-xl font-mono bg-gray-700 py-2 px-4 rounded-lg overflow-hidden">{account}</p>
-          // </div>
-          <Navigate to="/homepage" state={{ account: account }} />
+          <Navigate to="/homepage" />
         )}
       </div>
     </div>
   );
 };
+
 
 export default Web3Login;

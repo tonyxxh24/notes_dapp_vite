@@ -1,9 +1,13 @@
-import React from 'react';
-import { Layout, Button } from 'antd';
+import PropTypes from 'prop-types';
+import { useContext } from 'react';
+import { NotesContext } from '../contexts/NotesContext';
+import { Layout } from 'antd';
 
 const { Header } = Layout;
 
-const AppHeader = ({ account, onLogout }) => {
+const AppHeader = () => {
+    const { account } = useContext(NotesContext);
+
     return (
         <Header className="flex justify-between items-center px-4 bg-gray-100">
             <h1 className="text-4xl flex items-end">
@@ -12,9 +16,6 @@ const AppHeader = ({ account, onLogout }) => {
                     {account}
                 </span>
             </h1>
-            <Button className="mr-4" type="default" onClick={onLogout}>
-                Logout
-            </Button>
         </Header>
     );
 };

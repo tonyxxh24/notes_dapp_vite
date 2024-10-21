@@ -2,12 +2,9 @@ import { useState } from 'react';
 import { Card, Modal, Button, Dropdown } from 'antd';
 import { EllipsisOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import EditableForm from './EditableForm';
-const NoteCard = () => {
+const NoteCard = ({ noteData }) => {
     const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
-    const [note, setNote] = useState({
-      title: 'My Note Title',
-      content: 'This is the content of the note.',
-    });
+    const [note, setNote] = useState(noteData); // Note data state  
 
       // Show the edit modal
     const showCardModal = () => {
