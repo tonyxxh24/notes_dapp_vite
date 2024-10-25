@@ -75,6 +75,6 @@ export function decryptNoteData(encryptedHex, key) {
     return decompressedString;
   } catch (err) {
       console.error('Decryption Error:', err);
-      return null;
+      return encryptedHex;
   }
 }
