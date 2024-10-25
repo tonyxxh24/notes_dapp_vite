@@ -1,9 +1,9 @@
 // src/ethers.js
 import { BrowserProvider, Contract } from "ethers";
 import Notes from "../contracts/Notes.json";
-import { decryptNoteData, encryptNoteData } from "../utils/decrypt_encrypt";
+import { encryptNoteData } from "../utils/decrypt_encrypt";
 
-const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
+const contractAddress = import.meta.env.VITE_NOTE_CONTRACT_ADDRESS;
 let provider = null;
 let notesContract = null;
 
@@ -49,7 +49,9 @@ const initNotesContract = async (onEventCallback) => {
     // Get the signer
     const signer = await provider.getSigner();
 
-    // Replace with your contract's deployed address
+
+    console.log("Contract address:", contractAddress);
+
     notesContract = new Contract(
       contractAddress,
       Notes.abi,
@@ -106,13 +108,12 @@ const getEncryptedNotebyId = async (id) => {
 };
 
 
-const getDecryptedNotes = async (noteIds, key) => {
+const getEncryptedNotes = async (noteIds) => {
   try {
     const notes = await Promise.all(
       noteIds.map(async (id) =>{
         const encryptedNote = await getEncryptedNotebyId(id);
-        const decryptedNote = decryptNoteData(encryptedNote, key);
-        return { id: id.toString(), content: JSON.parse(decryptedNote)};
+        return { id: id.toString(), content: encryptedNote};
       })
     );
     return notes;
@@ -125,18 +126,38 @@ const createNote = async (contentObject, key) => {
   try {
     const encryptedContent = encryptNoteData(JSON.stringify(contentObject), key);
     const tx = await notesContract.createNote(encryptedContent);
-    await tx.wait();
+    const receipt = await tx.wait();
+
+    // Check if the transaction was successful
+    if (receipt.status === 1) {
+      console.log("Note created successfully!");
+      return true;
+    } else {
+      console.error("Transaction failed.");
+      throw new Error("Transaction failed.");
+    }
   } catch (error) {
     console.error("Error creating note:", error);
+    return false;
   }
 };
 
 const deleteNote = async (id) => {  
   try {
     const tx = await notesContract.deleteNote(id);
-    await tx.wait();
+    const receipt = await tx.wait();
+
+    // Check if the transaction was successful
+    if (receipt.status === 1) {
+      console.log("Note deleted successfully!");
+      return true;
+    } else {
+      console.error("Transaction failed.");
+      throw new Error("Transaction failed.");
+    }
   } catch (error) {
     console.error("Error deleting note:", error);
+    return false;
   }
 };
 
@@ -145,9 +166,19 @@ const updateNote = async (id, content, key) => {
   try {
     const encryptedContent = encryptNoteData(JSON.stringify(content), key);
     const tx = await notesContract.updateNote(id, encryptedContent);
-    await tx.wait();
+    const receipt = await tx.wait();
+
+    // Check if the transaction was successful
+    if (receipt.status === 1) {
+      console.log("Note updated successfully!");
+      return true;
+    } else {
+      console.error("Transaction failed.");
+      throw new Error("Transaction failed.");
+    }
   } catch (error) {
     console.error("Error updating note:", error);
+    return false;
   }
 };
 
@@ -159,7 +190,7 @@ export {
   
   getNoteIds, 
   getEncryptedNotebyId,
-  getDecryptedNotes,
+  getEncryptedNotes,
   createNote,
   deleteNote,
   updateNote
