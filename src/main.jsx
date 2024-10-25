@@ -5,9 +5,9 @@ import './index.css'
 import { NotesProvider } from './contexts/NotesContext';
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <NotesProvider>
       <App />
     </NotesProvider>
-  </StrictMode>,
+  // </StrictMode>,
 )

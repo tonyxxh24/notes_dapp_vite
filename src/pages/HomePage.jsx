@@ -7,15 +7,16 @@ import Sidebar from '../layouts/Sidebar';
 import AppContent from '../layouts/Content';
 import AppFooter from '../layouts/Footer';
 import { NotesContext } from '../contexts/NotesContext';
-import { initializeProvider, getNotesContract } from '../services/notesServices';
+import { initProvider, initNotesContract } from '../services/notesServices';
+
 
 const HomePage = () => {
   const { setAccount } = useContext(NotesContext);
 
   useEffect(() => {
     const initialize = async () => {
-      const provider = await initializeProvider();
-      await getNotesContract(provider);
+      await initProvider();
+      // await initNotesContract(handleContractEvent);
 
       // Wallet account change (locking the wallet also triggers this)
       window.ethereum.on("accountsChanged", handleAccountsChanged);
@@ -32,10 +33,15 @@ const HomePage = () => {
         // Get the first account from the updated list of accounts
         setAccount(accounts[0]);
         console.log("Switched to account:", accounts[0]);
+        
         // Get new contract instance
-        await getNotesContract();
+        // await initNotesContract(handleContractEvent);
       }
     }
+
+    const handleContractEvent = (message) => {
+      alert(message);
+    };
     
     return () => {
       window.ethereum.removeListener("accountsChanged", handleAccountsChanged);

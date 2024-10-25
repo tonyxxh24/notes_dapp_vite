@@ -10,24 +10,39 @@ export const NotesProvider = ({ children }) => {
     useEffect (() => { 
         setNotes([
             {
-                title: '1st Note',
-                content: 'This is the content of the note.',
+                id: 1,
+                content: { 
+                    title: '1st Note',
+                    text: 'This is the content of the note.'
+                }
             },
             {
-                title: '2nd Note',
-                content: 'This is the content of the note.',
+                id: 3,
+                content: { 
+                    title: '32st Note',
+                    text: 'This is the content of the note.'
+                }
             },
             {
-                title: '3nd Note',
-                content: 'This is the content of the note.',
+                id: 5,
+                content: { 
+                    title: '523rst Note',
+                    text: 'This is the content of the note.'
+                }
             },
             {
-                title: '4th Note',
-                content: 'This is the content of the note.',
+                id: 7,
+                content: { 
+                    title: '73r2st Note',
+                    text: 'This is the content of the note.'
+                }
             },
             {
-                title: '5th Note',
-                content: 'This is the content of the note.',
+                id: 9,
+                content: { 
+                    title: '13rst Note',
+                    text: 'This is the content of the note.'
+                }
             },
         ]);
     }, [account]);

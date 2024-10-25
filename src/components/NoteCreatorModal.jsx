@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { NotesContext } from '../contexts/NotesContext';
 import { Modal, Input, Button, Form, FloatButton } from 'antd';
 
 const NoteCreatorModal = () => {
+  const { setNotes } = useContext(NotesContext);
+  const [ idCount, setIdCount] = useState(100);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
 
@@ -17,8 +21,10 @@ const NoteCreatorModal = () => {
   const handleSave = () => {
     form
       .validateFields()
-      .then((values) => {
-        console.log('Saved Note:', values);
+      .then((newContent) => {
+        console.log('Saved Note:', newContent);
+        setNotes((prevNotes) => [...prevNotes, {id: idCount, content: newContent}]);
+        setIdCount(idCount + 1);
         setIsModalOpen(false);
         form.resetFields();
       })
@@ -53,8 +59,8 @@ const NoteCreatorModal = () => {
           </Form.Item>
 
           <Form.Item
-            label="Content"
-            name="content"
+            label="Text"
+            name="text"
             rules={[{ required: true, message: 'Please enter the content' }]}
           >
             <Input.TextArea

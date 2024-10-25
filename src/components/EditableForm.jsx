@@ -3,7 +3,7 @@ import { Form, Input, Button, Typography} from 'antd';
 
 const { Paragraph } = Typography;
 
-const EditableForm = ({ onDelete, note, setNote, setIsModalOpen}) => {
+const EditableForm = ({ onDelete, note, setNote, setIsModalOpen, noteId}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
 

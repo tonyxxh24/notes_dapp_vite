@@ -5,16 +5,17 @@ import { Col, Row, Input, Button } from 'antd';
 import NoteCard from '../components/NoteCard';
 import NoteCreatorModal from '../components/NoteCreatorModal';
 import { NotesContext } from '../contexts/NotesContext';
+import { getDecryptedNotes } from '../services/notesServices';
+import NoteEditorModal from '../components/NoteEditorModal';
 
 const { Content } = Layout;
 const AppContent = () => {
-    const [encryptionKey, setEncryptionKey] = useState('');
-    const inputRef = useRef(null);
-    const { notes, setNotes } = useContext(NotesContext);
+    const { notes } = useContext(NotesContext);
 
-    useEffect(() => { 
-      
-    }, []);
+    const [ encryptionKey, setEncryptionKey ] = useState('');
+    const inputRef = useRef(null);
+    const [ selectedNote, setSelectedNote ]  = useState(null);
+
 
     const handleKeySubmit = () => {
       if(inputRef.current)
@@ -49,13 +50,19 @@ const AppContent = () => {
           ) : (
             <>
               <Row gutter={[16, 16]}>
-                {notes.map((note, index) => (
-                  <Col xs={24} sm={12} md={8} lg={6} key={index}>
-                    <NoteCard noteData={note} />
+                {notes.map((note) => (
+                  <Col xs={24} sm={12} md={8} lg={6} key={note.id}>
+                    <NoteCard note={note} showEditorModal={() => setSelectedNote(note)}/>
                   </Col>
                 ))}
               </Row>
 
+              { selectedNote && (
+                <NoteEditorModal 
+                  note={selectedNote} 
+                  closeEditorModal={() => setSelectedNote(null)}
+                />
+              )}
               <NoteCreatorModal />
             </>
           )}

@@ -1,6 +1,4 @@
 // NotFound.js
-import React from 'react';
-
 function NotFound() {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>

@@ -1,23 +1,13 @@
-import { useState } from 'react';
-import { Card, Modal, Button, Dropdown } from 'antd';
+import { useContext } from 'react';
+import { Card, Button, Dropdown } from 'antd';
 import { EllipsisOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import EditableForm from './EditableForm';
-const NoteCard = ({ noteData }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
-    const [note, setNote] = useState(noteData); // Note data state  
+import { NotesContext } from '../contexts/NotesContext';
+const NoteCard = ({ note, showEditorModal }) => {
+    const { setNotes } = useContext(NotesContext);
 
-      // Show the edit modal
-    const showCardModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
-
-    // Handle delete action (can be modified to fit your app's logic)
-    const handleDelete = () => {
-        alert('Card will be deleted'); // Replace this with your delete logic
+    const handleDelete = (e) => {
+      e.stopPropagation(); // Stop event propagation to prevent card click
+      setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
     };
 
     // Dropdown menu items for the actions
@@ -29,7 +19,10 @@ const NoteCard = ({ noteData }) => {
             </span>
           ),
           key: 'edit',
-          onClick: showCardModal,
+          onClick: (e) => {
+            e.domEvent.stopPropagation(); // Stop propagation from the edit button
+            showEditorModal();
+          },
         },
         {
           label: (
@@ -38,7 +31,7 @@ const NoteCard = ({ noteData }) => {
             </span>
           ),
           key: 'delete',
-          onClick: handleDelete,
+          onClick: (e) => handleDelete(e.domEvent),
         },
     ];
 
@@ -46,12 +39,12 @@ const NoteCard = ({ noteData }) => {
         <div>
           {/* Ant Design Card */}
           <Card
-            title={note.title}
+            title={note.content.title}
             hoverable={true}
-            onClick={showCardModal}
+            onClick={showEditorModal}
             className="overflow-hidden h-48"
             extra={
-                <Dropdown menu={{ items: menuItems }} placement="bottomRight">
+                <Dropdown menu={{ items: menuItems }} placement="bottomRight" trigger={['click']} onClick={(e) => e.stopPropagation()}>
                     <Button
                         icon={<EllipsisOutlined />}
                         type="text"
@@ -61,18 +54,9 @@ const NoteCard = ({ noteData }) => {
             }
           >
             <p className="overflow-hidden line-clamp-4">
-              {note.content}
+              {note.content.text}
             </p>
           </Card>
-    
-          {/* Modal for editing content */}
-          <Modal
-            open={isModalOpen}
-            footer={null}
-            onCancel={handleCancel}
-          >
-            <EditableForm onDelete={handleDelete} note={note} setNote={setNote} setIsModalOpen={setIsModalOpen}/>
-          </Modal>
         </div>
     );
 };
