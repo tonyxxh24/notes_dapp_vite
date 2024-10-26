@@ -100,10 +100,10 @@ const getNoteIds = async () => {
 const getEncryptedNotebyId = async (id) => {
   try {
     const encryptedContent = await notesContract.getNote(id);
-    return encryptedContent; 
+    return {id: id, content: encryptedContent};
   } catch(error) {
     console.error("Error getting note by Id:", error);
-    return "";
+    return {};
   }
 };
 
@@ -113,9 +113,10 @@ const getEncryptedNotes = async (noteIds) => {
     const notes = await Promise.all(
       noteIds.map(async (id) =>{
         const encryptedNote = await getEncryptedNotebyId(id);
-        return { id: id.toString(), content: encryptedNote};
+        return encryptedNote;
       })
     );
+    console.log(notes);
     return notes;
   } catch (error) { 
     console.error("Error getting decrypted notes:", error);

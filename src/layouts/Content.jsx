@@ -5,17 +5,27 @@ import { Col, Row, Input, Button } from 'antd';
 import NoteCard from '../components/NoteCard';
 import NoteCreatorModal from '../components/NoteCreatorModal';
 import { NotesContext } from '../contexts/NotesContext';
-import { getDecryptedNotes } from '../services/notesServices';
 import NoteEditorModal from '../components/NoteEditorModal';
+import { getNoteIds, getEncryptedNotes } from '../services/notesServices';
 
 const { Content } = Layout;
 const AppContent = () => {
-    const { notes } = useContext(NotesContext);
+    const { account, notes, setNotes, encryptionKey, setEncryptionKey, isContractInitialized } = useContext(NotesContext);
 
-    const [ encryptionKey, setEncryptionKey ] = useState('');
     const inputRef = useRef(null);
-    const [ selectedNote, setSelectedNote ]  = useState(null);
+    const [selectedNote, setSelectedNote] = useState(null);
 
+    useEffect(() => {
+      const init = async () => {
+        if(isContractInitialized){
+          const noteIds = await getNoteIds();
+          console.log(noteIds);
+          const newNotes = await getEncryptedNotes(noteIds);
+          setNotes(newNotes);
+        }
+      }
+      init();
+    }, [account, setNotes, isContractInitialized]);
 
     const handleKeySubmit = () => {
       if(inputRef.current)
@@ -26,7 +36,10 @@ const AppContent = () => {
       setEncryptionKey('');
     }
 
-    return (   
+    return (
+      !isContractInitialized ? (
+        <div> Loading... </div>
+      ) : (
         <Content className="p-4">
           <div className="flex justify-between">
             <Breadcrumb 
@@ -52,7 +65,7 @@ const AppContent = () => {
               <Row gutter={[16, 16]}>
                 {notes.map((note) => (
                   <Col xs={24} sm={12} md={8} lg={6} key={note.id}>
-                    <NoteCard note={note} showEditorModal={() => setSelectedNote(note)}/>
+                    <NoteCard note={note} setSelectedNote={setSelectedNote}/>
                   </Col>
                 ))}
               </Row>
@@ -67,6 +80,7 @@ const AppContent = () => {
             </>
           )}
         </Content>
+      )
     );
 };
 

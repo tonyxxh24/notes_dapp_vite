@@ -11,20 +11,26 @@ import { initProvider, initNotesContract } from '../services/notesServices';
 
 
 const HomePage = () => {
-  const { setAccount } = useContext(NotesContext);
+  const { account, setAccount, setIsContractInitialized, setEncryptionKey } = useContext(NotesContext);
 
   useEffect(() => {
-    const initialize = async () => {
+    const init = async () => {
+      setEncryptionKey('');
+      setIsContractInitialized(false);
       await initProvider();
-      // await initNotesContract(handleContractEvent);
-
-      // Wallet account change (locking the wallet also triggers this)
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      await initNotesContract(handleContractEvent);
+      setIsContractInitialized(true);
     }
-    
-    initialize();
-    
-    async function handleAccountsChanged(accounts) {
+    init();
+
+    const handleContractEvent = (message) => {
+      alert(message);
+    };
+
+  }, [account, setEncryptionKey, setIsContractInitialized]);
+
+  useEffect(() => {
+    const handleAccountsChanged = (accounts) => {
       if (accounts.length === 0) {
         console.log("Wallet locked or no accounts connected.");
         window.location.reload();
@@ -33,16 +39,11 @@ const HomePage = () => {
         // Get the first account from the updated list of accounts
         setAccount(accounts[0]);
         console.log("Switched to account:", accounts[0]);
-        
-        // Get new contract instance
-        // await initNotesContract(handleContractEvent);
       }
-    }
-
-    const handleContractEvent = (message) => {
-      alert(message);
     };
-    
+
+    window.ethereum.on("accountsChanged", handleAccountsChanged);
+
     return () => {
       window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
     };

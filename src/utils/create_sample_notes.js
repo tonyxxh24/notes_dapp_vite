@@ -75,7 +75,7 @@ const note_samples = [
     ];
 
 export const createSampleNotes = (key) => {
-    const encryptedNotes = note_samples.map(note => ({id: note.id.toString(), content: encryptNoteData(JSON.stringify(note.content), key)}));
+    const encryptedNotes = note_samples.map(note => ({id: note.id, content: encryptNoteData(JSON.stringify(note.content), key)}));
     return encryptedNotes;
 }
 

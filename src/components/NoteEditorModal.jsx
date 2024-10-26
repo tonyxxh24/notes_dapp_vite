@@ -1,24 +1,23 @@
 import { useState, useContext } from 'react';
 import { NotesContext } from '../contexts/NotesContext';
+import { deleteNote, getEncryptedNotebyId, updateNote } from '../services/notesServices';
 
 import { Modal, Form, Input, Button, Typography} from 'antd';
 const { Paragraph } = Typography;
 
 const NoteEditorModal = ({ note, closeEditorModal }) => { 
-    const { setNotes } = useContext(NotesContext);
+    const { setNotes, encryptionKey } = useContext(NotesContext);
 
     const [isEditing, setIsEditing] = useState(false);
+    const [isSendingTx, setIsSendingTx] = useState(false);
     const [form] = Form.useForm();
 
     // Handle clicking the edit icon to enable editing
     const handleEdit = () => {
         setIsEditing(true);
         form.setFieldsValue({
-            id: note.id,
-            content: {
-                title: note.content.title,
-                text: note.content.text,
-            }
+            title: note.content.title,
+            text: note.content.text,
         });  // Load current note values into the form
     };
 
@@ -26,18 +25,36 @@ const NoteEditorModal = ({ note, closeEditorModal }) => {
     const handleSave = () => {
         form
         .validateFields()
-        .then((values) => {
-            setNotes(values);  // Save the new values
+        .then( async (newContent) => {
+            setIsSendingTx(true);
+            console.log(`Attempting to update note ${note.id}: ${newContent}`);
+            const result = await updateNote(note.id, newContent, encryptionKey);
+
+            if(result) {
+                //get updated encrypted note
+                const updatedNote = await getEncryptedNotebyId(note.id);
+                setNotes((prevNotes) => prevNotes.map((n) => n.id === note.id ? updatedNote : n));
+            }
+            
             setIsEditing(false);  // Disable editing mode
+            setIsSendingTx(false);
         })
         .catch((info) => {
             console.log('Validation Failed:', info);
         });
     };
 
-    const handleDelete = () => {
-        setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
+    const handleDelete = async () => {
+        setIsSendingTx(true);
+        const userConfirmed = confirm("Are you sure you wanna delete this note?");
+        if(!userConfirmed) {
+            setIsSendingTx(false);
+            return;
+        }
+        const result = await deleteNote(note.id);
+        if(result) setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
         closeEditorModal();
+        setIsSendingTx(false);
     };
 
     // Handle cancel action
@@ -56,24 +73,24 @@ const NoteEditorModal = ({ note, closeEditorModal }) => {
             <Form form={form} layout="vertical">
                 <Form.Item
                     label="Title"
-                    name={['content', 'title']}
+                    name="title"
                     rules={[{ required: true, message: 'Please enter the title' }]}
                 >
-                    <Input placeholder="Enter the title" />
+                    <Input placeholder="Enter the title" disabled={isSendingTx} />
                 </Form.Item>
 
                 <Form.Item
                     label="Text"
-                    name={['content', 'text']}
+                    name="text"
                     rules={[{ required: true, message: 'Please enter the content' }]}
                 >
-                    <Input.TextArea placeholder="Enter the content" rows={4} />
+                    <Input.TextArea placeholder="Enter the content" rows={4} disabled={isSendingTx} />
                 </Form.Item>
 
-                <Button type="primary" onClick={handleSave}>
+                <Button type="primary" onClick={handleSave} disabled={isSendingTx}>
                     Save
                 </Button>
-                <Button onClick={handleEditCancel} style={{ marginLeft: 8 }}>
+                <Button onClick={handleEditCancel} style={{ marginLeft: 8 }} disabled={isSendingTx}>
                     Cancel
                 </Button>
             </Form>
@@ -84,7 +101,7 @@ const NoteEditorModal = ({ note, closeEditorModal }) => {
                         {note.content.title}
                     </Paragraph>
                     <Typography.Text type="secondary" className="mr-8">
-                        [ID: {note.id}]
+                        [ID: {note.id.toString()}]
                     </Typography.Text>
                 </div>
                 <Paragraph>
@@ -93,10 +110,10 @@ const NoteEditorModal = ({ note, closeEditorModal }) => {
             </>
         )}
         <div className="flex justify-end">
-            <Button onClick={handleEdit}>
+            <Button onClick={handleEdit} disabled={isSendingTx || isEditing}>
                 Edit
             </Button>
-            <Button danger onClick={handleDelete} className="ml-2">
+            <Button danger onClick={handleDelete} className="ml-2" disabled={isSendingTx || isEditing}>
                 Delete
             </Button>
         </div>
