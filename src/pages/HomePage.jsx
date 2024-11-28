@@ -33,7 +33,7 @@ const HomePage = () => {
     const handleAccountsChanged = (accounts) => {
       if (accounts.length === 0) {
         console.log("Wallet locked or no accounts connected.");
-        window.location.reload();
+        window.location.href = "/";
       } else {
         console.log("Accounts available:", accounts);
         // Get the first account from the updated list of accounts

@@ -11,12 +11,6 @@ export const NotesProvider = ({ children }) => {
     const [encryptionKey, setEncryptionKey] = useState('');
     const [isContractInitialized, setIsContractInitialized] = useState(false);
 
-    //// Sample Notes
-    // useEffect (() => { 
-    //     const encryptedSamples = createSampleNotes('abcd');
-    //     setNotes(encryptedSamples);
-    // }, [account]);
-
     return (
         <NotesContext.Provider 
             value={{

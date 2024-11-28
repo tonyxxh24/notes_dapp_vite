@@ -8,6 +8,8 @@ const { Paragraph } = Typography;
 const NoteEditorModal = ({ note, closeEditorModal }) => { 
     const { setNotes, encryptionKey } = useContext(NotesContext);
 
+    const {id, content} = note;
+    const [localContent, setLocalContent] = useState(content);
     const [isEditing, setIsEditing] = useState(false);
     const [isSendingTx, setIsSendingTx] = useState(false);
     const [form] = Form.useForm();
@@ -16,8 +18,8 @@ const NoteEditorModal = ({ note, closeEditorModal }) => {
     const handleEdit = () => {
         setIsEditing(true);
         form.setFieldsValue({
-            title: note.content.title,
-            text: note.content.text,
+            title: localContent.title,
+            text: localContent.text,
         });  // Load current note values into the form
     };
 
@@ -27,13 +29,16 @@ const NoteEditorModal = ({ note, closeEditorModal }) => {
         .validateFields()
         .then( async (newContent) => {
             setIsSendingTx(true);
-            console.log(`Attempting to update note ${note.id}: ${newContent}`);
-            const result = await updateNote(note.id, newContent, encryptionKey);
+            console.log(`Attempting to update note ${id}: ${newContent}`);
+            const result = await updateNote(id, newContent, encryptionKey);
 
             if(result) {
                 //get updated encrypted note
-                const updatedNote = await getEncryptedNotebyId(note.id);
-                setNotes((prevNotes) => prevNotes.map((n) => n.id === note.id ? updatedNote : n));
+                const updatedNote = await getEncryptedNotebyId(id);
+                setNotes((prevNotes) => prevNotes.map((n) => n.id === id ? updatedNote : n));
+
+                //update current content on editor
+                setLocalContent(newContent);
             }
             
             setIsEditing(false);  // Disable editing mode
@@ -51,8 +56,8 @@ const NoteEditorModal = ({ note, closeEditorModal }) => {
             setIsSendingTx(false);
             return;
         }
-        const result = await deleteNote(note.id);
-        if(result) setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
+        const result = await deleteNote(id);
+        if(result) setNotes((prevNotes) => prevNotes.filter((n) => n.id !== id));
         closeEditorModal();
         setIsSendingTx(false);
     };
@@ -98,14 +103,14 @@ const NoteEditorModal = ({ note, closeEditorModal }) => {
             <>
                 <div className="flex items-center justify-between">
                     <Paragraph strong className="mr-2">
-                        {note.content.title}
+                        {localContent.title}
                     </Paragraph>
                     <Typography.Text type="secondary" className="mr-8">
-                        [ID: {note.id.toString()}]
+                        [ID: {id.toString()}]
                     </Typography.Text>
                 </div>
                 <Paragraph>
-                    {note.content.text}
+                    {localContent.text}
                 </Paragraph>
             </>
         )}
