@@ -14,18 +14,18 @@ const HomePage = () => {
   const { account, setAccount, setIsContractInitialized, setEncryptionKey } = useContext(NotesContext);
 
   useEffect(() => {
+    const handleContractEvent = (message) => {
+      alert(message);
+    };
+
     const init = async () => {
       setEncryptionKey('');
       setIsContractInitialized(false);
       await initProvider();
       await initNotesContract(handleContractEvent);
       setIsContractInitialized(true);
-    }
-    init();
-
-    const handleContractEvent = (message) => {
-      alert(message);
     };
+    init();
 
   }, [account, setEncryptionKey, setIsContractInitialized]);
 
